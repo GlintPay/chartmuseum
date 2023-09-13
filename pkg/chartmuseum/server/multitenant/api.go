@@ -89,11 +89,16 @@ func (server *MultiTenantServer) deleteChartVersion(log cm_logger.LoggingFn, rep
 	log(cm_logger.DebugLevel, "Deleting package from storage",
 		"package", filename,
 	)
+	fmt.Println("deleteChartVersion() Preparing to delete", filename, "via", repo, name, version)
+
 	deleteObjErr := server.StorageBackend.DeleteObject(filename)
 	if deleteObjErr != nil {
 		return &HTTPError{http.StatusNotFound, deleteObjErr.Error()}
 	}
 	provFilename := pathutil.Join(repo, cm_repo.ProvenanceFilenameFromNameVersion(name, version))
+
+	fmt.Println("deleteChartVersion() Preparing to delete prov", provFilename, "via", repo, name, version)
+
 	server.StorageBackend.DeleteObject(provFilename) // ignore error here, may be no prov file
 	return nil
 }
@@ -272,6 +277,9 @@ func (server *MultiTenantServer) PutWithLimit(ctx *gin.Context, log cm_logger.Lo
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("PutWithLimit() Preparing to delete", newObjs[0].Path)
+
 	if err := server.StorageBackend.DeleteObject(pathutil.Join(repo, newObjs[0].Path)); err != nil {
 		return fmt.Errorf("PutWithLimit: clean the old chart: %w", err)
 	}

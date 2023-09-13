@@ -451,6 +451,8 @@ func (server *MultiTenantServer) postPackageAndProvenanceRequestHandler(c *gin.C
 		} else {
 			// Clean up what's already been saved
 			for _, ppf := range storedFiles {
+				fmt.Println("postPackageAndProvenanceRequestHandler() Preparing to delete", ppf.filename)
+
 				server.StorageBackend.DeleteObject(ppf.filename)
 			}
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("%s", err)})
