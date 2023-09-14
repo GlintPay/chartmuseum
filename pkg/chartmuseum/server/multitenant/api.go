@@ -256,7 +256,13 @@ func (server *MultiTenantServer) PutWithLimit(ctx *gin.Context, log cm_logger.Lo
 	}
 	var newObjs []storage.Object
 	for _, obj := range objs {
-		if !strings.HasPrefix(obj.Path, name) || strings.HasSuffix(obj.Path, ".prov") {
+		pathParts := strings.Split(obj.Path, "-")
+		normalisedName := obj.Path
+		if len(pathParts) > 1 {
+			normalisedName = strings.Join(pathParts[:len(pathParts)-1], "-")
+		}
+
+		if normalisedName != name || strings.HasSuffix(obj.Path, ".prov") {
 			continue
 		}
 		log(cm_logger.DebugLevel, "PutWithLimit", "current object name", obj.Path)
